@@ -16,7 +16,7 @@ describe 'app' do
       VERSION: 2,
       fname: {
         UP: {
-          source: :name,
+          source: [:name],
           transformer: lambda{|name|name.split(' ').first}
         },
         DOWN: {
@@ -27,7 +27,7 @@ describe 'app' do
       },
       lname: {
         UP: {
-          source: :name,
+          source: [:name],
           transformer: lambda{|name|name.split(' ')[1..-1]}
         },
         DOWN: {

@@ -39,9 +39,27 @@ class Munger
     Hash[@views.to_a]
   end
   def munge slices, target_view
+
+    # munge them all to the highest view and
+    # than munge the last view down to the target
+
+    # munge the slices up to the highest view we have
+    top_view = @views.to_a.last.last
+    top_view_data = _munge(slices, top_view)
+
+    # munge that data to the target view
+    target_view_data = _munge([{ view_version: top_view.version,
+                                 data: top_view_data }],
+                             target_view)
+
+    return target_view_data
+  end
+  def _munge slices, target_view
+
     # go through each of the slices transforming their
     # data into the target view's version
     final_data = {}
+
     # walk slices from oldest to newest
     # TODO: guarentee order?
     slices.each do |slice|
@@ -66,15 +84,22 @@ class Munger
 
       # figure out as we walk the chain where we should start and
       # where we should stop our transformations
-      t = [slice_view_version, target_view.version]
-      start_version, end_version = direction == :UP ? t : t.reverse
+      if direction == :UP
+        start_version = slice_view_version+1
+        end_version = target_view.version
+      elsif direction == :DOWN
+        start_version = target_view.version
+        end_version = slice_view_version+1
+      end
       munge_views = views.select do |view_version, _|
-        view_version <= end_version && view_version > start_version
+        view_version <= end_version && view_version >= start_version
       end
 
       # munge our slice data throuh each of the view transformations
+      new_slice_data = {}
       munge_views.each do |(_,munge_view)|
-        slice_data = munge_view.transform direction, slice_data
+        new_slice_data.merge(
+          munge_view.transform(direction, slice_data, final_data))
       end
 
       # merge this slice's munged data into the final entities data
@@ -94,19 +119,23 @@ class View
   def version
     @schema[:VERSION]
   end
-  def transform direction, data
+  def transform direction, data, reference_data
+    # it seems i'll need to transform the reference data
+    # up to my view so that i can reference it in terms i understand
     new_data = {}
     @schema.each do |field, value|
       next if field == :VERSION
       if value.is_a?(Hash)
         dir_values = value[direction]
-        target_field = dir_values[:target]
+        target_field = dir_values[:target] || field
         sources_fields = dir_values[:source]
         transformer = dir_values[:transformer]
-        new_value = transformer.call(*sources_fields.map{|f|data[f]})
+        current_data = reference_data.merge data
+        new_value = transformer.call(*sources_fields.map{|f|current_data[f]})
         new_data[target_field] = new_value
       end
     end
+    #require 'pry'; binding.pry
     return new_data
   end
 end
