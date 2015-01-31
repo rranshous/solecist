@@ -68,7 +68,6 @@ class Munger
       # where we should stop our transformations
       t = [slice_view_version, target_view.version]
       start_version, end_version = direction == :UP ? t : t.reverse
-      require 'pry'; binding.pry
       munge_views = views.select do |view_version, _|
         view_version <= end_version && view_version > start_version
       end
@@ -96,7 +95,19 @@ class View
     @schema[:VERSION]
   end
   def transform direction, data
-    {}
+    new_data = {}
+    @schema.each do |field, value|
+      next if field == :VERSION
+      if value.is_a?(Hash)
+        dir_values = value[direction]
+        target_field = dir_values[:target]
+        sources_fields = dir_values[:source]
+        transformer = dir_values[:transformer]
+        new_value = transformer.call(*sources_fields.map{|f|data[f]})
+        new_data[target_field] = new_value
+      end
+    end
+    return new_data
   end
 end
 

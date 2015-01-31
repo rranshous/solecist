@@ -15,23 +15,25 @@ describe 'app' do
     data_view_v2 = { 
       VERSION: 2,
       fname: {
-        up: {
+        UP: {
           source: :name,
           transformer: lambda{|name|name.split(' ').first}
         },
-        down: {
+        DOWN: {
           source: [:fname, :lname],
-          transformer: lambda{|fname,lname|"#{fname} #{lname}"}
+          transformer: lambda{|fname,lname|"#{fname} #{lname}"},
+          target: :name
         }
       },
       lname: {
-        up: {
+        UP: {
           source: :name,
           transformer: lambda{|name|name.split(' ')[1..-1]}
         },
-        down: {
+        DOWN: {
           source: [:fname, :lname],
-          transformer: lambda{|fname,lname|"#{fname} #{lname}"}
+          transformer: lambda{|fname,lname|"#{fname} #{lname}"},
+          target: :name
         }
       },
       phone: :INHERIT
