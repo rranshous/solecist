@@ -46,9 +46,16 @@ class Munger
     # TODO: guarentee order?
     slices.each do |slice|
 
-      # don't change the data passed to us
-      slice_data = slice.data.dup
+      # better to do no work, skip to the end
+      # TODO: this short circuit is ugly
       slice_view_version = slice[:view_version]
+      if slice_view_version == target_view.version
+        final_data.merge! slice[:data]
+        next
+      end
+
+      # don't change the data passed to us
+      slice_data = slice[:data].dup
 
       # sort the views we are going to walk through based on
       # whether we are transforming "up" or "down" the chain
@@ -57,21 +64,22 @@ class Munger
       views = @views.to_a.dup
       views.reverse! if direction == :DOWN
 
-      # figure out as we walk the chain where we should stop and
+      # figure out as we walk the chain where we should start and
       # where we should stop our transformations
-      t = [slice_view_version, target_view_version]
+      t = [slice_view_version, target_view.version]
       start_version, end_version = direction == :UP ? t : t.reverse
+      require 'pry'; binding.pry
       munge_views = views.select do |view_version, _|
-        version <= end_version && version > start_version
+        view_version <= end_version && view_version > start_version
       end
 
       # munge our slice data throuh each of the view transformations
-      munge_views.each do |munge_view|
+      munge_views.each do |(_,munge_view)|
         slice_data = munge_view.transform direction, slice_data
       end
 
       # merge this slice's munged data into the final entities data
-      findal_data.merge! slice_data
+      final_data.merge! slice_data
     end
     # we should have now gone through all the slices
     # merging their data (transformed into the target view's format)
@@ -86,6 +94,9 @@ class View
   end
   def version
     @schema[:VERSION]
+  end
+  def transform direction, data
+    {}
   end
 end
 

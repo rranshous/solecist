@@ -49,27 +49,27 @@ describe 'app' do
     solecist.write(
       'user::1',
       data_view_v2,
-      { contact: 'Lizz' }
+      { lname: 'Ranshous' }
     )
     solecist.write(
       'user::1',
       data_view_v3,
-      { lname: 'Ranshous' }
+      { contact: 'Lizz' }
     )
     expect( solecist.read(
       'user::1',
       data_view_v1
-    )).to eq({ 'name' => 'Robby Ranshous',
-           'phone' => '1231233' })
+    )).to eq({ name: 'Robby Ranshous',
+               phone: '1231233' })
     expect( solecist.read(
       'user::1',
       data_view_v2
-    )).to eq({ 'fname' => 'Robby', 'lname' => 'Ranshous',
-           'phone' => '1231233' })
+    )).to eq({ fname: 'Robby', lname: 'Ranshous',
+               phone: '1231233' })
     expect( solecist.read(
       'user::1',
       data_view_v3
-    )).to eq({ 'fname' => 'Robby', 'lname' => 'Ranshous',
-           'phone' => '1231233', 'contact' => 'Lizz' })
+    )).to eq({ fname: 'Robby', lname: 'Ranshous',
+               phone: '1231233', contact: 'Lizz' })
   end
 end
