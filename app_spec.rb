@@ -134,8 +134,8 @@ describe 'app' do
     let(:later){earlier + 100}
     before(:each) do
       Timecop.freeze(earlier+200)
-      solecist.write(entity_key, data_view_v3, { fname: 'Robby' }, earlier)
-      solecist.write(entity_key, data_view_v3, { fname: 'Phil' }, later)
+      solecist.write(entity_key, data_view_v3, { fname: 'Robby' }, {}, earlier)
+      solecist.write(entity_key, data_view_v3, { fname: 'Phil' }, {}, later)
     end
     after(:each) do
       Timecop.return
@@ -144,8 +144,25 @@ describe 'app' do
       expect(solecist.read(entity_key, data_view_v3)).to eq({fname: 'Phil'})
     end
     it 'can read back from arbitrary point in time' do
-      expect(solecist.read(entity_key, data_view_v3, earlier+50))
+      expect(solecist.read(entity_key, data_view_v3, {}, earlier+50))
         .to eq({fname: 'Robby'})
+    end
+  end
+
+  context 'write meta data to entity' do
+    before(:each) do
+      solecist.write(entity_key, data_view_v3, { fname: 'Robby' },
+                     { source: 'pope' })
+      solecist.write(entity_key, data_view_v3, { fname: 'Phil' },
+                     { source: 'satan' })
+    end
+    it 'can read back an entity based on a meta conditions' do
+      expect(solecist.read(entity_key, data_view_v3, { source: "pope" }))
+        .to eq({ fname: 'Robby' })
+    end
+    it 'does not get back result if no conditions are matched' do
+      expect(solecist.read(entity_key, data_view_v3, { source: "jack" }))
+        .to eq({})
     end
   end
 

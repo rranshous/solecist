@@ -19,14 +19,15 @@ class MemoryStore < Hash
   def initialize
     @data = {}
   end
-  def write key, data, view_version, time
+  def write key, data, view_version, metadata, time
     @data[key] ||= SortedSet.new
-    @data[key] << [time, view_version, data]
+    @data[key] << [time, view_version, data, metadata]
   end
   def read key, view_version
     @data[key].to_a rescue 'TODO/WTF'
-    @data[key].to_a.map do |(time, source_view_version, data)|
-      { view_version: source_view_version, data: data, timestamp: time }
+    @data[key].to_a.map do |(time, source_view_version, data, metadata)|
+      { view_version: source_view_version, data: data, timestamp: time,
+        metadata: metadata }
     end
   end
 end
@@ -166,22 +167,33 @@ class Solecist
     @store = store
     @munger = Munger.new
   end
-  def write entity_key, view_schema, data, time=Time.now.to_f
+  def write entity_key, view_schema, data, meta={}, time=Time.now.to_f
     view = View.new(view_schema)
     @munger.add_view view
-    @store.write entity_key, data, view.version, time
+    @store.write entity_key, data, view.version, meta, time
   end
-  def read entity_key, view_schema, time=Time.now.to_f
+  def read entity_key, view_schema, meta={}, time=Time.now.to_f
     view = View.new(view_schema)
     @munger.add_view view
     slices = @store.read entity_key, view.version
     time_filtered_slices = TimeFilter.filter slices, time
-    @munger.munge time_filtered_slices, view
+    meta_filtered_slices = MetaFilter.filter time_filtered_slices, meta
+    @munger.munge meta_filtered_slices, view
   end
 end
 
 class TimeFilter
   def self.filter slices, time
     slices.select{|s| s[:timestamp] <= time}
+  end
+end
+
+class MetaFilter
+  def self.filter slices, meta_conditions
+    slices.select do |slice|
+      meta_conditions.to_a.all? do |(key, value)|
+        slice[:metadata][key] == value
+      end
+    end
   end
 end
