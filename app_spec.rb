@@ -127,4 +127,16 @@ describe 'app' do
                  phone: '1231233', contact: 'Lizz M' })
     end
   end
+
+  context 'write out of order with timestamps' do
+    before(:each) do
+      earlier = Time.now.to_f
+      later = earlier + 100
+      solecist.write(entity_key, data_view_v3, { fname: 'Robby' }, later)
+      solecist.write(entity_key, data_view_v3, { fname: 'Phil' }, earlier)
+    end
+    it 'reads back w/ "earlier" value' do
+      expect(solecist.read(entity_key, data_view_v3)).to eq({fname: 'Robby'})
+    end
+  end
 end

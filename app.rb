@@ -19,9 +19,9 @@ class MemoryStore < Hash
   def initialize
     @data = {}
   end
-  def write key, data, view_version
+  def write key, data, view_version, time
     @data[key] ||= SortedSet.new
-    @data[key] << [Time.now.to_i, view_version, data]
+    @data[key] << [time, view_version, data]
   end
   def read key, view_version
     @data[key].to_a rescue 'WTF'
@@ -178,13 +178,14 @@ class Solecist
     @store = store
     @munger = Munger.new
   end
-  def write entity_key, view_schema, data
+  def write entity_key, view_schema, data, time=Time.now.to_f
     view = View.new(view_schema)
     @munger.add_view view
-    @store.write entity_key, data, view.version
+    @store.write entity_key, data, view.version, time
   end
   def read entity_key, view_schema
     view = View.new(view_schema)
+    @munger.add_view view
     slices = @store.read entity_key, view.version
     @munger.munge slices, view
   end
