@@ -13,6 +13,8 @@
 # we will call the arbitrary values which an entity's
 require 'set'
 
+# TODO: use better implimentation of sorted set
+
 class MemoryStore < Hash
   def initialize
     @data = {}
