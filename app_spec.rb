@@ -30,7 +30,7 @@ describe 'app' do
       lname: {
         UP: {
           source: [:name],
-          transformer: lambda{|name|name.split(' ')[1..-1]}
+          transformer: lambda{|name|name.split(' ')[1..-1].join(' ')}
         },
         DOWN: {
           source: [:fname, :lname],
@@ -86,7 +86,7 @@ describe 'app' do
       solecist.write(entity_key, data_view_v3, { contact: 'Lizz' })
       solecist.write(entity_key, data_view_v2, { fname: 'Bobby' })
       solecist.write(entity_key, data_view_v1, { name: 'Bobby Knight' })
-      #solecist.write(entity_key, data_view_v3, { contact: 'Lizz M' })
+      solecist.write(entity_key, data_view_v3, { contact: 'Lizz M' })
     end
     it 'can read back using first version' do
       expect(solecist.read(entity_key, data_view_v1))

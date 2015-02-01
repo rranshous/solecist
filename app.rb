@@ -49,22 +49,22 @@ class Munger
     # munge the slices up to the highest view we have
     @views.to_a rescue 'WTF'
     top_view = @views.to_a.last.last
-    puts "TO HIGHEST"
+    puts "TO HIGHEST" if $debug
     top_view_data = _munge(slices, top_view)
-    puts "TOP VIEW DATA: #{top_view_data}"
+    puts "TOP VIEW DATA: #{top_view_data}" if $debug
 
     # munge that data to the target view
-    puts "TO TARGET #{target_view.version}"
+    puts "TO TARGET #{target_view.version}" if $debug
     target_view_data = _munge([{ view_version: top_view.version,
                                  data: top_view_data }],
                              target_view)
-    puts "TARGET DATA: #{target_view_data}"
+    puts "TARGET DATA: #{target_view_data}" if $debug
 
     return target_view_data
   end
   def _munge slices, target_view
 
-    puts "MUNGE to #{target_view.version}"
+    puts "MUNGE to #{target_view.version}" if $debug
 
     # go through each of the slices transforming their
     # data into the target view's version
@@ -74,11 +74,10 @@ class Munger
     # TODO: guarentee order?
     slices.each do |slice|
 
-
       # better to do no work, skip to the end
       # TODO: this short circuit is ugly
       slice_view_version = slice[:view_version]
-      puts " SLICE VIEW VERSION: #{slice_view_version}"
+      puts " SLICE VIEW VERSION: #{slice_view_version}" if $debug
       if slice_view_version == target_view.version
         final_data.merge! slice[:data]
         next
@@ -93,7 +92,7 @@ class Munger
       direction = slice_view_version < target_view.version ? :UP : :DOWN
       views = @views.to_a.dup
       views.reverse! if direction == :DOWN
-      puts " DIRECTION: #{direction}"
+      puts " DIRECTION: #{direction}" if $debug
 
       # figure out as we walk the chain where we should start and
       # where we should stop our transformations
@@ -104,19 +103,21 @@ class Munger
         start_version = target_view.version+1
         end_version = slice_view_version
       end
-      puts " START #{start_version} :: END #{end_version}"
+      puts " START #{start_version} :: END #{end_version}" if $debug
       munge_views = views.select do |view_version, _|
         view_version <= end_version && view_version >= start_version
       end
-      puts " MUNGE VIEWS: #{munge_views.map{|v|v.first}}"
+      puts " MUNGE VIEWS: #{munge_views.map{|v|v.first}}" if $debug
 
       # munge our slice data throuh each of the view transformations
       munge_views.each do |(_,munge_view)|
+        puts " SLICE DATA: #{slice_data}" if $debug
         slice_data = munge_view.transform(direction, slice_data, final_data)
       end
 
       # merge this slice's munged data into the final entities data
       final_data.merge! slice_data
+      puts " FINALDATA: #{final_data}" if $debug
     end
 
     # filter the data down to the final view's schema
@@ -166,7 +167,6 @@ class View
         new_data[target_field] = new_value
       end
     end
-    #require 'pry'; binding.pry
     return new_data
   end
 end
