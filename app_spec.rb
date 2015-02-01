@@ -1,4 +1,5 @@
 require 'rspec'
+require 'timecop'
 require_relative 'app'
 
 describe 'app' do
@@ -129,14 +130,23 @@ describe 'app' do
   end
 
   context 'write out of order with timestamps' do
+    let(:earlier){Time.now.to_f}
+    let(:later){earlier + 100}
     before(:each) do
-      earlier = Time.now.to_f
-      later = earlier + 100
-      solecist.write(entity_key, data_view_v3, { fname: 'Robby' }, later)
-      solecist.write(entity_key, data_view_v3, { fname: 'Phil' }, earlier)
+      Timecop.freeze(earlier+200)
+      solecist.write(entity_key, data_view_v3, { fname: 'Robby' }, earlier)
+      solecist.write(entity_key, data_view_v3, { fname: 'Phil' }, later)
+    end
+    after(:each) do
+      Timecop.return
     end
     it 'reads back w/ "earlier" value' do
-      expect(solecist.read(entity_key, data_view_v3)).to eq({fname: 'Robby'})
+      expect(solecist.read(entity_key, data_view_v3)).to eq({fname: 'Phil'})
+    end
+    it 'can read back from arbitrary point in time' do
+      expect(solecist.read(entity_key, data_view_v3, earlier+50))
+        .to eq({fname: 'Robby'})
     end
   end
+
 end
