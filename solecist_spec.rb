@@ -2,7 +2,7 @@ require 'rspec'
 require 'timecop'
 require_relative 'solecist'
 
-describe 'app' do
+describe Solecist do
 
   let(:store) { Solecist::MemoryStore.new }
   let(:solecist) { Solecist.new(store) }
