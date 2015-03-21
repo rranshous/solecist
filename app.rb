@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'json'
+require_relative 'helpers'
 require_relative 'solecist'
 
 store = Solecist::MemoryStore.new
@@ -25,22 +26,4 @@ post '/:entitykey' do |entitykey|
   info = $solecist.write(entitykey, view_schema, data, metadata, timestamp)
   content_type 'application/json'
   {'timestamp' => info[:time], 'view_version' => info[:view_version]}.to_json
-end
-
-helpers do
-  def symbolize_keys(hash)
-    return nil if hash.nil?
-    hash.inject({}){|result, (key, value)|
-      new_key = case key
-                when String then key.to_sym
-                else key
-                end
-      new_value = case value
-                  when Hash then symbolize_keys(value)
-                  else value
-                  end
-      result[new_key] = new_value
-      result
-    }
-  end
 end

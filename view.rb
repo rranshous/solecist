@@ -15,25 +15,25 @@ class View
     # up to my view so that i can reference it in terms i understand
     new_data = {}
     @schema.each do |field, value|
-      next if field == :VERSION
+      next if field.to_sym == :VERSION
       current_data = reference_data.merge data
-      # if we are going up or down, inherit means copy
-      if value == :INHERIT
-        new_data[field] = current_data[field]
-      # if we are going up new means nil out
-      elsif value == :NEW && direction == :UP
-        new_data[field] = nil
-      # if we are going down new means copy
-      elsif value == :NEW && direction == :DOWN
-        new_data[field] = current_data[field]
       # hash means transformation
-      elsif value.is_a?(Hash)
+      if value.is_a?(Hash)
         dir_values = value[direction]
         target_field = dir_values[:target] || field
         sources_fields = dir_values[:source]
         transformer = dir_values[:transformer]
         new_value = transformer.call(*sources_fields.map{|f|current_data[f]})
         new_data[target_field] = new_value
+      # if we are going up or down, inherit means copy
+      elsif value.to_sym == :INHERIT
+        new_data[field] = current_data[field]
+      # if we are going up new means nil out
+      elsif value.to_sym == :NEW && direction == :UP
+        new_data[field] = nil
+      # if we are going down new means copy
+      elsif value.to_sym == :NEW && direction == :DOWN
+        new_data[field] = current_data[field]
       end
     end
     return new_data

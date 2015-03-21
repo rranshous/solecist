@@ -57,13 +57,6 @@ describe 'app' do
       .to eq({ name: 'Robby Ranchous', phone: '1231233' })
   end
 
-  it 'can read back by specifying view version' do
-    solecist.write(entity_key, data_view_v1,
-      { name: 'Robby Ranchous', phone: '1231233' })
-    expect(solecist.read(entity_key, data_view_v1))
-      .to eq({ name: 'Robby Ranchous', phone: '1231233' })
-  end
-
   context 'three view versions, three writes' do
     before(:each) do
       solecist.write(entity_key, data_view_v1,
