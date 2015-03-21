@@ -22,7 +22,7 @@ post '/:entitykey' do |entitykey|
   timestamp = payload['timestamp'].nil? ? nil : payload['timestamp'].to_f
   metadata = payload['metadata'] ||= {}
   data = symbolize_keys payload['data']
-  view_schema = symbolize_keys payload['view_schema']
+  view_schema = transformations_to_lambda symbolize_keys payload['view_schema']
   info = $solecist.write(entitykey, view_schema, data, metadata, timestamp)
   content_type 'application/json'
   {'timestamp' => info[:time], 'view_version' => info[:view_version]}.to_json

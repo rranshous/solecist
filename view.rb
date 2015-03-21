@@ -23,7 +23,7 @@ class View
         target_field = dir_values[:target] || field
         sources_fields = dir_values[:source]
         transformer = dir_values[:transformer]
-        new_value = transformer.call(*sources_fields.map{|f|current_data[f]})
+        new_value = transformer.call(*sources_fields.map{|f|current_data[f.to_sym]})
         new_data[target_field] = new_value
       # if we are going up or down, inherit means copy
       elsif value.to_sym == :INHERIT

@@ -14,5 +14,18 @@ helpers do
       result
     }
   end
+
+  # TODO: put in service?
+  def transformations_to_lambda view_schema
+    view_schema.each do |key, data|
+      if data.is_a? Hash
+        [:UP, :DOWN].each do |dir|
+          if (v=data[dir]).is_a?(Hash) && (t=v[:transformer]).is_a?(String)
+            data[dir][:transformer] = eval t
+          end
+        end
+      end
+    end
+  end
 end
 
