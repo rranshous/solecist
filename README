@@ -1,1 +1,5 @@
 http://dictionary.reference.com/browse/solecism
+
+k,v store using sourcing
+
+backed by redis in prod
