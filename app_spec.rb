@@ -48,6 +48,17 @@ describe 'App' do
     expect(JSON.load(last_response.body)).to eq({ 'name' => 'Robby' })
   end
 
+  it 'gets w/o specifying view' do
+    post("/#{entitykey}",
+         {view_schema: view_schema, data: { name: 'Robby' }}.to_json)
+    expect(last_response).to be_ok
+    expect(JSON.load(last_response.body))
+      .to eq({ 'timestamp' => time, 'view_version' => view_version })
+    get("/#{entitykey}")
+    expect(last_response).to be_ok
+    expect(JSON.load(last_response.body)).to eq({ 'name' => 'Robby' })
+  end
+
   context 'sets in two views' do
     before(:each) do # each is wrong
       post("/#{entitykey}",

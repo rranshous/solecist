@@ -34,6 +34,7 @@ class Solecist
     time ||= Time.now.to_f
     meta ||= {}
     view = @view_collection.create_or_retrieve(view_schema)
+    view ||= @view_collection.latest
     slices = @store.read entity_key, view.version
     time_filtered_slices = TimeFilter.filter slices, time
     meta_filtered_slices = MetaFilter.filter time_filtered_slices, meta

@@ -62,6 +62,9 @@ class ViewCollection
     end
     false
   end
+  def latest
+    @views.to_a.last.last
+  end
   def to_a
     @views.to_a
   end

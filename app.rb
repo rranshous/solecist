@@ -6,6 +6,16 @@ require_relative 'solecist'
 store = Solecist::MemoryStore.new
 $solecist = Solecist.new store
 
+get '/:entitykey' do |entitykey|
+  timestamp = params['timestamp'].nil? ? nil : params['timestamp'].to_f
+  metadata = JSON.load(params[:metadata] || '{}')
+  data = $solecist.read(entitykey,
+                        nil,
+                        symbolize_keys(metadata),
+                        timestamp)
+  data.to_json
+end
+
 get '/:entitykey/:view_version' do |entitykey, view_version|
   timestamp = params['timestamp'].nil? ? nil : params['timestamp'].to_f
   metadata = JSON.load(params[:metadata] || '{}')
