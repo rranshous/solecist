@@ -35,6 +35,7 @@ class Solecist
     meta ||= {}
     view = @view_collection.create_or_retrieve(view_schema)
     view ||= @view_collection.latest
+    raise 'No view found' unless view
     slices = @store.read entity_key, view.version
     time_filtered_slices = TimeFilter.filter slices, time
     meta_filtered_slices = MetaFilter.filter time_filtered_slices, meta

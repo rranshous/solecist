@@ -13,6 +13,7 @@ get '/:entitykey' do |entitykey|
                         nil,
                         symbolize_keys(metadata),
                         timestamp)
+  content_type 'application/json'
   data.to_json
 end
 
@@ -23,6 +24,7 @@ get '/:entitykey/:view_version' do |entitykey, view_version|
                         view_version.to_i,
                         symbolize_keys(metadata),
                         timestamp)
+  content_type 'application/json'
   data.to_json
 end
 
@@ -32,6 +34,7 @@ post '/:entitykey' do |entitykey|
   timestamp = payload['timestamp'].nil? ? nil : payload['timestamp'].to_f
   metadata = payload['metadata'] ||= {}
   data = symbolize_keys payload['data']
+  puts "view schema: #{payload['view_schema']}"
   view_schema = transformations_to_lambda symbolize_keys payload['view_schema']
   info = $solecist.write(entitykey, view_schema, data, metadata, timestamp)
   content_type 'application/json'

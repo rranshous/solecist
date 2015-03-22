@@ -63,7 +63,8 @@ class ViewCollection
     false
   end
   def latest
-    @views.to_a.last.last
+    return nil if to_a.empty?
+    to_a.last.last
   end
   def to_a
     @views.to_a
