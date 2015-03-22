@@ -3,7 +3,14 @@ require 'json'
 require_relative 'helpers'
 require_relative 'solecist'
 
-$store = Solecist::MemoryStore.new
+configure(:development,:test) do
+  puts "using memory store"
+  $store = Solecist::MemoryStore.new
+end
+configure(:production) do
+  puts "using redis store"
+  $store = Solecist::RedisStore.new
+end
 view_collection = ViewCollection.new
 $solecist = Solecist.new $store, view_collection
 
@@ -42,7 +49,6 @@ post '/:entitykey' do |entitykey|
   timestamp = payload['timestamp'].nil? ? nil : payload['timestamp'].to_f
   metadata = payload['metadata'] ||= {}
   data = symbolize_keys payload['data']
-  puts "view schema: #{payload['view_schema']}"
   view_schema = transformations_to_lambda symbolize_keys payload['view_schema']
   info = $solecist.write(entitykey, view_schema, data, metadata, timestamp)
   content_type 'application/json'
