@@ -3,8 +3,16 @@ require 'json'
 require_relative 'helpers'
 require_relative 'solecist'
 
-store = Solecist::MemoryStore.new
-$solecist = Solecist.new store
+$store = Solecist::MemoryStore.new
+view_collection = ViewCollection.new
+$solecist = Solecist.new $store, view_collection
+
+get '/' do
+  content_type 'application/json'
+  $store.keys.map do |k|
+    URI.join("http://#{request.host}:#{request.port}","/#{k}")
+  end.to_json
+end
 
 get '/:entitykey' do |entitykey|
   timestamp = params['timestamp'].nil? ? nil : params['timestamp'].to_f

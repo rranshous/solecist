@@ -15,6 +15,9 @@ class Solecist
           metadata: metadata }
       end
     end
+    def keys
+      @data.keys
+    end
   end
 end
 

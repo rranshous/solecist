@@ -18,9 +18,9 @@ require_relative 'munger'
 require_relative 'view'
 
 class Solecist
-  def initialize store
+  def initialize store, view_collection=ViewCollection.new
     @store = store
-    @view_collection = ViewCollection.new
+    @view_collection = view_collection
     @munger = Munger.new @view_collection
   end
   def write entity_key, view_schema, data, meta=nil, time=nil
@@ -35,7 +35,6 @@ class Solecist
     meta ||= {}
     view = @view_collection.create_or_retrieve(view_schema)
     view ||= @view_collection.latest
-    raise 'No view found' unless view
     slices = @store.read entity_key, view.version
     time_filtered_slices = TimeFilter.filter slices, time
     meta_filtered_slices = MetaFilter.filter time_filtered_slices, meta

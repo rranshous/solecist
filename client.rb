@@ -22,9 +22,23 @@ module Solecist
     end
 
     def get key
-      r =self.class.get(url_for(key))
+      r = self.class.get(url_for(key))
       raise "failed req: #{r.code}" if r.code == 500
       r.parsed_response
+    end
+
+    def all
+      r = self.class.get(URI.join(host, '/'))
+      raise "failed req: #{r.code}" if r.code == 500
+      r.parsed_response.map do |url|
+        self.class.get(url).parsed_response
+      end
+    end
+
+    def keys
+      r = self.class.get(URI.join(host, '/'))
+      raise "failed req: #{r.code}" if r.code == 500
+      r.parsed_response.map{|l|l.split('/').last}
     end
 
     private
