@@ -3,16 +3,19 @@ require 'json'
 require_relative 'helpers'
 require_relative 'solecist'
 
+view_collection = nil
 configure(:development,:test) do
   puts "using memory store"
   $store = Solecist::MemoryStore.new
+  view_collection = ViewCollection.new
 end
 configure(:production) do
   puts "using redis store"
   $store = Solecist::RedisStore.new
+  view_collection = RedisViewCollection.new
 end
-view_collection = ViewCollection.new
 $solecist = Solecist.new $store, view_collection
+
 
 get '/' do
   content_type 'application/json'

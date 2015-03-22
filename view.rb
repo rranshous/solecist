@@ -1,6 +1,8 @@
 require 'set'
+require 'redis-objects'
 
 class View
+  attr_reader :schema
   def initialize schema
     @schema = schema
   end
@@ -74,3 +76,39 @@ class ViewCollection
   end
 end
 
+class RedisViewCollection < ViewCollection
+  def initialize
+    @redis = Redis.new
+    Redis.current = @redis
+    @views = Redis::SortedSet.new('views')
+  end
+  def add view
+    unless to_a.map{|ver,_|ver}.include? view.version
+      @views[view.schema.to_json] = view.version
+      return view
+    end
+    false
+  end
+  def to_a
+    @views.members.map do |s|
+      view = View.new(symbolize_keys(JSON.load(s)))
+      [view.version, view]
+    end
+  end
+  private
+  def symbolize_keys(hash)
+    return nil if hash.nil?
+    hash.inject({}){|result, (key, value)|
+      new_key = case key
+                when String then key.to_sym
+                else key
+                end
+      new_value = case value
+                  when Hash then symbolize_keys(value)
+                  else value
+                  end
+      result[new_key] = new_value
+      result
+    }
+  end
+end
