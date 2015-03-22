@@ -13,11 +13,27 @@ class Solecist
     end
     def read key, view_version
       raw_datas = @redis.zrange key, 0, -1
-      datas = raw_datas.map { |d| JSON.load d }
+      datas = raw_datas.map { |d| symbolize_keys(JSON.load(d)) }
       datas
     end
     def keys
       @redis.keys
+    end
+    private
+    def symbolize_keys(hash)
+      return nil if hash.nil?
+      hash.inject({}){|result, (key, value)|
+        new_key = case key
+                  when String then key.to_sym
+                  else key
+                  end
+        new_value = case value
+                    when Hash then symbolize_keys(value)
+                    else value
+                    end
+        result[new_key] = new_value
+        result
+      }
     end
   end
 end

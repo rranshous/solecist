@@ -14,6 +14,7 @@
 
 # TODO: use better implimentation of sorted set
 require_relative 'memory_store'
+require_relative 'redis_store'
 require_relative 'munger'
 require_relative 'view'
 

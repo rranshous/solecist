@@ -2,7 +2,7 @@ require 'uri'
 require 'httparty'
 require 'json'
 
-module Solecist
+class Solecist
   class Client
 
     include HTTParty
