@@ -14,8 +14,8 @@ configure(:production) do
   $store = Solecist::RedisStore.new
   view_collection = RedisViewCollection.new
 end
-$solecist = Solecist.new $store, view_collection
 
+$solecist = Solecist.new $store, view_collection
 
 get '/' do
   content_type 'application/json'
