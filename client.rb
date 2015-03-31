@@ -24,6 +24,7 @@ class Solecist
     def get key
       r = self.class.get(url_for(key))
       raise "failed req: #{r.code}" if r.code == 500
+      return nil if r.code == 409
       r.parsed_response
     end
 

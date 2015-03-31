@@ -19,6 +19,7 @@ require_relative 'munger'
 require_relative 'view'
 
 class Solecist
+  class MissingView < Exception; end;
   def initialize store, view_collection=ViewCollection.new
     @store = store
     @view_collection = view_collection
@@ -36,6 +37,9 @@ class Solecist
     meta ||= {}
     view = @view_collection.create_or_retrieve(view_schema)
     view ||= @view_collection.latest
+    if view.nil?
+      raise MissingView, "Missing view: #{view_schema}"
+    end
     slices = @store.read entity_key, view.version
     time_filtered_slices = TimeFilter.filter slices, time
     meta_filtered_slices = MetaFilter.filter time_filtered_slices, meta

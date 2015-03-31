@@ -27,10 +27,14 @@ end
 get '/:entitykey' do |entitykey|
   timestamp = params['timestamp'].nil? ? nil : params['timestamp'].to_f
   metadata = JSON.load(params[:metadata] || '{}')
-  data = $solecist.read(entitykey,
-                        nil,
-                        symbolize_keys(metadata),
-                        timestamp)
+  begin
+    data = $solecist.read(entitykey,
+                          nil,
+                          symbolize_keys(metadata),
+                          timestamp)
+  rescue Solecist::MissingView
+    halt 404, '{}'
+  end
   content_type 'application/json'
   data.to_json
 end
@@ -38,10 +42,14 @@ end
 get '/:entitykey/:view_version' do |entitykey, view_version|
   timestamp = params['timestamp'].nil? ? nil : params['timestamp'].to_f
   metadata = JSON.load(params[:metadata] || '{}')
-  data = $solecist.read(entitykey,
-                        view_version.to_i,
-                        symbolize_keys(metadata),
-                        timestamp)
+  begin
+    data = $solecist.read(entitykey,
+                          view_version.to_i,
+                          symbolize_keys(metadata),
+                          timestamp)
+  rescue Solecist::MissingView
+    halt 404, '{}'
+  end
   content_type 'application/json'
   data.to_json
 end
