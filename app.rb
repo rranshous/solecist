@@ -33,8 +33,9 @@ get '/:entitykey' do |entitykey|
                           symbolize_keys(metadata),
                           timestamp)
   rescue Solecist::MissingView
-    halt 404, '{}'
+    halt 404, '{ "error":"no view found" }'
   end
+  halt(404, '{ "error": "no record" }') if data.nil?
   content_type 'application/json'
   data.to_json
 end
@@ -48,8 +49,9 @@ get '/:entitykey/:view_version' do |entitykey, view_version|
                           symbolize_keys(metadata),
                           timestamp)
   rescue Solecist::MissingView
-    halt 404, '{}'
+    halt 404, '{ "error":"view not found" }'
   end
+  halt(404, '{ "error": "no record" }') if data.nil?
   content_type 'application/json'
   data.to_json
 end
