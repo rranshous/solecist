@@ -11,18 +11,19 @@ class Solecist
       @host = host
     end
 
-    def set key, data, view
+    def set key, data, view, metadata={}
       post_data = {
         data: data,
-        view_schema: view
+        view_schema: view,
+        metadata: metadata
       }
       r = self.class.post(url_for(key), { body: post_data.to_json })
       raise "failed req: #{r.code}" if r.code == 500
       r.parsed_response
     end
 
-    def get key
-      r = self.class.get(url_for(key))
+    def get key, metadata={}
+      r = self.class.get(url_for(key), query: { metadata: metadata.to_json })
       raise "failed req: #{r.code}" if r.code == 500
       return nil if r.code == 404
       r.parsed_response

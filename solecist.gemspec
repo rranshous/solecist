@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'solecist'
-  s.version       = '0.0.5'
+  s.version       = '0.0.6'
   s.licenses      = ['BeerWare']
   s.summary       = "client for solecist document store"
   s.description   = "client for solecist document store"

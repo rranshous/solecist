@@ -60,7 +60,7 @@ post '/:entitykey' do |entitykey|
   request.body.rewind
   payload = JSON.parse request.body.read
   timestamp = payload['timestamp'].nil? ? nil : payload['timestamp'].to_f
-  metadata = payload['metadata'] ||= {}
+  metadata = payload['metadata'] || {}
   data = symbolize_keys payload['data']
   view_schema = transformations_to_lambda symbolize_keys payload['view_schema']
   info = $solecist.write(entitykey, view_schema, data, metadata, timestamp)
