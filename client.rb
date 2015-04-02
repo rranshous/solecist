@@ -22,8 +22,9 @@ class Solecist
       r.parsed_response
     end
 
-    def get key, metadata={}
-      r = self.class.get(url_for(key), query: { metadata: metadata.to_json })
+    def get key, metadata=nil
+      query = metadata.nil? ? nil : { metadata: metadata.to_json }
+      r = self.class.get(url_for(key), query: query)
       raise "failed req: #{r.code}" if r.code == 500
       return nil if r.code == 404
       r.parsed_response

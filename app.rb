@@ -43,6 +43,7 @@ end
 get '/:entitykey/:view_version' do |entitykey, view_version|
   timestamp = params['timestamp'].nil? ? nil : params['timestamp'].to_f
   metadata = JSON.load(params[:metadata] || '{}')
+  content_type 'application/json'
   begin
     data = $solecist.read(entitykey,
                           view_version.to_i,
@@ -52,18 +53,17 @@ get '/:entitykey/:view_version' do |entitykey, view_version|
     halt 404, '{ "error":"view not found" }'
   end
   halt(404, '{ "error": "no record" }') if data.nil?
-  content_type 'application/json'
   data.to_json
 end
 
 post '/:entitykey' do |entitykey|
   request.body.rewind
+  content_type 'application/json'
   payload = JSON.parse request.body.read
   timestamp = payload['timestamp'].nil? ? nil : payload['timestamp'].to_f
   metadata = payload['metadata'] || {}
   data = symbolize_keys payload['data']
   view_schema = transformations_to_lambda symbolize_keys payload['view_schema']
   info = $solecist.write(entitykey, view_schema, data, metadata, timestamp)
-  content_type 'application/json'
   {'timestamp' => info[:time], 'view_version' => info[:view_version]}.to_json
 end
