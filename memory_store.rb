@@ -8,7 +8,7 @@ class Solecist
       @data[key] ||= SortedSet.new
       @data[key] << [time, view_version, data, metadata]
     end
-    def read key, view_version
+    def read key
       @data[key].to_a rescue 'TODO/WTF'
       @data[key].to_a.map do |(time, source_view_version, data, metadata)|
         { view_version: source_view_version, data: data, timestamp: time,

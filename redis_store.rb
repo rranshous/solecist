@@ -11,7 +11,7 @@ class Solecist
                    metadata: metadata, timestamp: time, key: key }
       @redis.zadd key_for(key), time, to_write.to_json
     end
-    def read key, view_version
+    def read key
       raw_datas = @redis.zrange key_for(key), 0, -1
       datas = raw_datas.map { |d| symbolize_keys(JSON.load(d)) }
       datas

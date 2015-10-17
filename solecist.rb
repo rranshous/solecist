@@ -40,7 +40,7 @@ class Solecist
     if view.nil?
       raise MissingView, "Missing view: #{view_schema}"
     end
-    slices = @store.read entity_key, view.version
+    slices = @store.read entity_key
     return nil if slices.empty?
     time_filtered_slices = TimeFilter.filter slices, time
     meta_filtered_slices = MetaFilter.filter time_filtered_slices, meta
