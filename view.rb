@@ -74,6 +74,22 @@ class ViewCollection
   def [] k
     Hash[self.to_a][k]
   end
+  private
+  def symbolize_keys(hash)
+    return nil if hash.nil?
+    hash.inject({}){|result, (key, value)|
+      new_key = case key
+                when String then key.to_sym
+                else key
+                end
+      new_value = case value
+                  when Hash then symbolize_keys(value)
+                  else value
+                  end
+      result[new_key] = new_value
+      result
+    }
+  end
 end
 
 class RedisViewCollection < ViewCollection
@@ -95,20 +111,23 @@ class RedisViewCollection < ViewCollection
       [view.version, view]
     end
   end
-  private
-  def symbolize_keys(hash)
-    return nil if hash.nil?
-    hash.inject({}){|result, (key, value)|
-      new_key = case key
-                when String then key.to_sym
-                else key
-                end
-      new_value = case value
-                  when Hash then symbolize_keys(value)
-                  else value
-                  end
-      result[new_key] = new_value
-      result
-    }
+end
+
+class DiskViewCollection < ViewCollection
+  def initialize data_dir
+    @data_dir = File.join(File.absolute_path(data_dir), 'view_data')
+    FileUtils.mkdir_p @data_dir
+  end
+  def add view
+    path = File.join @data_dir, "#{Time.now.to_f}.json"
+    FileUtils.mkdir_p File.dirname(path)
+    File.write(path, view.to_json)
+  end
+  def to_a
+    Dir[File.join(@data_dir,'*.json')].map do |path|
+      data = File.read(path)
+      view = View.new(symbolize_keys(JSON.load(data)))
+      [view.version, view]
+    end
   end
 end

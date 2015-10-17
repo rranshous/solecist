@@ -5,7 +5,7 @@ class Solecist
   class DiskStore
 
     def initialize data_dir
-      @data_dir = File.absolute_path data_dir
+      @data_dir = File.join(File.absolute_path(data_dir),'key_data')
       FileUtils.mkdir_p @data_dir
     end
 
