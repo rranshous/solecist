@@ -6,13 +6,19 @@ require_relative 'solecist'
 view_collection = nil
 configure(:development,:test) do
   puts "using memory store"
-  $store = Solecist::MemoryStore.new
-  view_collection = ViewCollection.new
+    $store = Solecist::DiskStore.new ENV['DATA_PATH']
+    view_collection = DiskViewCollection.new ENV['DATA_PATH']
 end
 configure(:production) do
-  puts "using redis store"
-  $store = Solecist::RedisStore.new
-  view_collection = RedisViewCollection.new
+  if ENV['DATA_PATH']
+    puts "using disk store"
+    $store = Solecist::DiskStore.new ENV['DATA_PATH']
+    view_collection = DiskViewCollection.new ENV['DATA_PATH']
+  else
+    puts "using redis store"
+    $store = Solecist::RedisStore.new
+    view_collection = RedisViewCollection.new
+  end
 end
 
 $solecist = Solecist.new $store, view_collection

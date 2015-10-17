@@ -119,9 +119,14 @@ class DiskViewCollection < ViewCollection
     FileUtils.mkdir_p @data_dir
   end
   def add view
-    path = File.join @data_dir, "#{Time.now.to_f}.json"
-    FileUtils.mkdir_p File.dirname(path)
-    File.write(path, view.to_json)
+    require 'pry';binding.pry
+    unless to_a.map{|ver,_|ver}.include? view.version
+      path = File.join @data_dir, "#{Time.now.to_f}.#{rand(100)}.json"
+      puts "PATH: #{path}"
+      File.write(path, view.schema.to_json)
+      return view
+    end
+    false
   end
   def to_a
     Dir[File.join(@data_dir,'*.json')].map do |path|

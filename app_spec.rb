@@ -3,6 +3,7 @@ require_relative 'app'
 require 'rspec'
 require 'rack/test'
 require 'timecop'
+require 'fileutils'
 
 describe 'App' do
   include Rack::Test::Methods
@@ -31,6 +32,7 @@ describe 'App' do
   }
 
   before(:each) do
+    FileUtils.rm_rf File.absolute_path(ENV['DATA_PATH'])
     Timecop.freeze
   end
   after(:each) do
@@ -63,8 +65,10 @@ describe 'App' do
     before(:each) do # each is wrong
       post("/#{entitykey}",
            {view_schema: view_schema, data: { name: 'Robby' }}.to_json)
+      puts "done first"
       post("/#{entitykey}",
            {view_schema: view_schema2, data: { 'age': 21 }}.to_json)
+      puts "done second"
     end
     it 'gets in first view' do
       get("/#{entitykey}/1")
